@@ -274,11 +274,7 @@ contract STARS is BurnableToken, DetailedERC20, ERC20Token,Pausable{
 	using SafeMath for uint256;
 
 	event Approval(address indexed owner, address indexed spender, uint256 value);
-	event LockerChanged(address indexed _address, uint256 amount);
-	event Recall(address indexed from, uint256 amount);
 	
-	mapping(address => uint) public locker;
-
 	string public constant symbol = "STS";
  	string public constant name = "STARS";
 	uint8 public constant decimals = 18;
@@ -309,52 +305,7 @@ contract STARS is BurnableToken, DetailedERC20, ERC20Token,Pausable{
 		
 	}
 	
-    function lockOf(address _address) public view returns (uint256 _locker) {
-		return locker[_address];
-	}
-
-	function setLock(address _address, uint256 _value) public onlyOwnerOrAdmin {
-		require(_value <= _totalSupply,"ERC20: The amount to be locked must be less than the total issuance amount.");
-		require(_address != address(0),"ERC20: It should not be the first wallet..");
-		locker[_address] = _value;
-		emit LockerChanged(_address, _value);
-	}
-
-	function recall(address _from, uint256 _amount) public onlyOwnerOrAdmin {
-	
-		require(_amount <= _totalSupply,"ERC20: The amount to be locked must be less than the total issuance amount.");
-		require(_from != address(0),"ERC20: It should not be the first wallet..");
-
-		uint256 currentLocker = locker[_from];
-		uint256 currentBalance = balances[_from];
-
-		require(currentLocker >= _amount  && currentBalance >= _amount,"ERC20: The amount to be locked must be less than the total issuance amount.");
-
-
-		uint256 newLock = currentLocker - _amount;
-		locker[_from] = newLock;
-		emit LockerChanged(_from, newLock);
-
-		
-		balances[_from] = balances[_from].sub(_amount);
-		balances[owner] = balances[owner].add(_amount);
-		emit Transfer(_from, owner, _amount);
-		emit Recall(_from, _amount);
-		
-    }
-
-    function mint(address _address, uint256 _value) public onlyOwnerOrAdmin returns (bool){
-	    require( _address != address(0) , "ERC20: It should not be the first wallet..");
-
-		balances[_address] = balances[_address].add(_value);
-		
-		emit Transfer(address(0x0), _address, _value);
-
-		return true;
-		
-	}
-
-	function() public payable {
+    	function() public payable {
 		revert();
 	}
 }
